@@ -3,7 +3,7 @@
 using namespace std;
 
 template <typename T>
-class Stack
+class Queue
 {
 private:
   list<T> data;
@@ -11,7 +11,7 @@ private:
 public:
   void push(T data)
   {
-    return this->data.push_front(data);
+    return this->data.push_back(data);
   }
 
   void pop()
@@ -24,9 +24,14 @@ public:
     return this->data.size();
   }
 
-  T top()
+  T front()
   {
     return this->data.front();
+  }
+
+  T back()
+  {
+    return this->data.back();
   }
 
   void display()
@@ -42,9 +47,9 @@ public:
 
 int main()
 {
-  Stack<int> s;
-  s.push(12);
-  s.push(13);
-  cout << s.top() << endl;
+  Queue<int> q;
+  q.push(12);
+  q.push(13);
+  cout << q.back() << endl;
+  cout << q.front() << endl;
 }
-// last in first out => LIFO

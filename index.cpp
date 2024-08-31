@@ -1,74 +1,218 @@
 #include <iostream>
-#include <list>
-#include <forward_list>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
+#include <stack>
+#include <queue>
+#include <set>
+
 using namespace std;
 
-int main() // 4 steps
+void dfs(const unordered_map<char, vector<char>> &graph, char startingNode)
 {
-  cout << "hello, world!" << endl;
+  stack<char> s;
+  unordered_set<char> visited;
 
-  list<int> l;
-  l.push_back(1);
-  l.push_back(2);
-  l.push_back(3);
-  l.push_back(4);
-  l.push_back(5);
+  s.push(startingNode);
+  visited.insert(startingNode);
 
-  vector<int> v;
-
-  int n;
-  cin >> n;
-
-  for (int i = 0; i < n; i++) // n * 3
+  while (!s.empty())
   {
-    cout << i << " ";
-    cout << i << " ";
-    cout << i << " ";
-  }
+    char current = s.top();
+    s.pop();
 
-  for (int i = 0; i < n; i++) // n * n
-  {
-    for (int j = 0; j < n; j++)
+    cout << current << " ";
+
+    for (char neighbor : graph.at(current))
     {
-      cout << i << " ";
-      cout << i << " ";
-      cout << i << " ";
+      if (visited.count(neighbor) == 0)
+      {
+        s.push(neighbor);
+        visited.insert(neighbor);
+      }
+    }
+  }
+}
+
+bool hasPath(const unordered_map<char, vector<char>> &graph, char startingNode, char endingNode)
+{
+  stack<char> s;
+  unordered_set<char> visited;
+
+  s.push(startingNode);
+  visited.insert(startingNode);
+
+  while (!s.empty())
+  {
+    char current = s.top();
+    s.pop();
+
+    if (current == endingNode)
+      return true;
+
+    for (char neighbor : graph.at(current))
+    {
+      if (visited.count(neighbor) == 0)
+      {
+        s.push(neighbor);
+        visited.insert(neighbor);
+      }
     }
   }
 
-  int x; // 4 steps due to calculating worst case path
-  cin >> x;
-  if (x == 4)
-    cout << "ahmed\n";
+  return false;
 }
-// Data structures - Algorithms
-// space - time
 
-// linked list (x)
-// vector
-// stack
-// queue
-// trees
-// graphs
-// set
-// map
+int shortestPath(unordered_map<char, vector<pair<char, int>>> &weightedGraph, char startingNode, char endingNode)
+{
+  unordered_map<char, int> distances;
+  // Initialize all distances to infinity
+  for (auto node : weightedGraph)
+    distances[node.first] = 1e9;
 
-// crud (create, read, update, delete)
+  // Use a set to store nodes to be processed, ordered by distance
+  set<pair<int, char>> toProcess;
 
-// array
+  distances[startingNode] = 0;
+  toProcess.insert({0, startingNode});
 
-// pros
-// fast access time
+  while (!toProcess.empty())
+  {
+    // Get the node with the smallest distance
+    auto current = *toProcess.begin();
+    toProcess.erase(toProcess.begin());
 
-// cons
-// fixed size
-// hard to manipulate
+    auto currentNode = current.second;
+    auto currentDistance = current.first;
 
-// linked list
-// pros
-// dynamic size
-// easy to manipulate
+    // If we reached the ending node, return the distance
+    if (currentNode == endingNode)
+      return currentDistance;
 
-// cons
-// searching is extremely bad
+    // Explore the neighbors
+    for (auto neighbor : weightedGraph.at(currentNode))
+    {
+      auto nextNode = neighbor.first;
+      auto edgeWeight = neighbor.second;
+
+      // Calculate the new distance
+      auto newDistance = currentDistance + edgeWeight;
+
+      // If the new distance is smaller, update it
+      if (newDistance < distances[nextNode])
+      {
+        // Remove the old entry if it exists
+        toProcess.erase({distances[nextNode], nextNode});
+
+        distances[nextNode] = newDistance;
+        toProcess.insert({newDistance, nextNode});
+      }
+    }
+  }
+
+  return -1;
+}
+
+void printShortestPath(unordered_map<char, vector<pair<char, int>>> &weightedGraph, char startingNode, char endingNode)
+{
+  unordered_map<char, int> distances;
+  unordered_map<char, char> predecessors; // To store the shortest path predecessors
+
+  // Initialize all distances to infinity
+  for (auto node : weightedGraph)
+    distances[node.first] = 1e9;
+
+  // Use a set to store nodes to be processed, ordered by distance
+  set<pair<int, char>> toProcess;
+
+  distances[startingNode] = 0;
+  toProcess.insert({0, startingNode});
+
+  while (!toProcess.empty())
+  {
+    // Get the node with the smallest distance
+    auto current = *toProcess.begin();
+    toProcess.erase(toProcess.begin());
+
+    char currentNode = current.second;
+    int currentDistance = current.first;
+
+    // If we reached the ending node, reconstruct and print the path
+    if (currentNode == endingNode)
+    {
+      // Reconstruct the path from endingNode to startingNode
+      stack<char> path;
+      char step = endingNode;
+
+      while (step != startingNode)
+      {
+        path.push(step);
+        step = predecessors[step];
+      }
+      path.push(startingNode); // Push the starting node to complete the path
+
+      // Print the path
+      cout << "Shortest path: ";
+      while (!path.empty())
+      {
+        cout << path.top();
+        path.pop();
+        if (!path.empty())
+          cout << " -> ";
+      }
+      cout << endl;
+
+      cout << "Shortest distance: " << currentDistance << endl;
+      return;
+    }
+
+    // Explore the neighbors
+    for (const auto &neighbor : weightedGraph.at(currentNode))
+    {
+      char nextNode = neighbor.first;
+      int edgeWeight = neighbor.second;
+
+      // Calculate the new distance
+      int newDistance = currentDistance + edgeWeight;
+
+      // If the new distance is smaller, update it
+      if (newDistance < distances[nextNode])
+      {
+        // Remove the old entry if it exists
+        toProcess.erase({distances[nextNode], nextNode});
+
+        distances[nextNode] = newDistance;
+        predecessors[nextNode] = currentNode; // Store the predecessor
+        toProcess.insert({newDistance, nextNode});
+      }
+    }
+  }
+
+  cout << "No path found from " << startingNode << " to " << endingNode << endl;
+}
+
+int main()
+{
+  // adjacency list
+  unordered_map<char, vector<char>> graph{
+      {'a', {'b'}},
+      {'b', {'a', 'c', 'd', 'e'}},
+      {'c', {'b'}},
+      {'d', {}},
+      {'e', {'b', 'c'}},
+      {'f', {}}};
+
+  unordered_map<char, vector<pair<char, int>>> weightedGraph{
+      {'a', {{'b', 4}, {'c', 4}}},
+      {'b', {{'a', 4}, {'c', 2}}},
+      {'c', {{'a', 4}, {'b', 4}, {'d', 3}, {'e', 1}, {'f', 6}}},
+      {'d', {{'c', 3}, {'f', 2}}},
+      {'e', {{'c', 1}, {'f', 3}}},
+      {'f', {{'c', 6}, {'d', 2}, {'e', 3}}}};
+
+  // cout << hasPath(graph, 'a', 'f') << endl;
+  // cout << shortestPath(weightedGraph, 'a', 'f') << endl;
+  printShortestPath(weightedGraph, 'a', 'f');
+  cout << endl
+       << endl;
+}
