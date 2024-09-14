@@ -54,20 +54,28 @@ public:
         if (temp->right)
           temp = temp->right;
         else
+        {
           temp->right = newNode;
+          return;
+        }
       }
       else if (temp->data > value)
       {
         if (temp->left)
           temp = temp->left;
         else
+        {
           temp->left = newNode;
+          return;
+        }
       }
     }
   }
 
   void deleteNode(T value)
   {
+    for (int i = 1; i < n; i *= 2) // 256 | 8
+      cout << i;
   }
 
   bool find(T value)
@@ -94,8 +102,8 @@ public:
     if (root == nullptr)
       return;
 
-    Node<T> *current = root;
-    stack<Node<T> *> s;
+    Node<T> current = *root;
+    stack<Node<T>> s;
     s.push(current);
 
     while (!s.empty())
@@ -103,8 +111,8 @@ public:
       current = s.top();
       cout << current << " -> ";
       s.pop();
-      s.push(current->right);
-      s.push(current->left);
+      s.push(current.right);
+      s.push(current.left);
     }
   }
 
@@ -132,5 +140,4 @@ int main()
 {
   set<int> s;
   map<string, int> m;
-  
 }

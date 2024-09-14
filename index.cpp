@@ -5,7 +5,7 @@
 #include <stack>
 #include <queue>
 #include <set>
-
+#include <map>
 using namespace std;
 
 void dfs(const unordered_map<char, vector<char>> &graph, char startingNode)
@@ -67,8 +67,8 @@ int shortestPath(unordered_map<char, vector<pair<char, int>>> &weightedGraph, ch
 {
   unordered_map<char, int> distances;
   // Initialize all distances to infinity
-  for (auto node : weightedGraph)
-    distances[node.first] = 1e9;
+  for (auto row : weightedGraph)
+    distances[row.first] = 1e9;
 
   // Use a set to store nodes to be processed, ordered by distance
   set<pair<int, char>> toProcess;
@@ -102,7 +102,8 @@ int shortestPath(unordered_map<char, vector<pair<char, int>>> &weightedGraph, ch
       if (newDistance < distances[nextNode])
       {
         // Remove the old entry if it exists
-        toProcess.erase({distances[nextNode], nextNode});
+        if (distances[nextNode] != 1e9)
+          toProcess.erase({distances[nextNode], nextNode});
 
         distances[nextNode] = newDistance;
         toProcess.insert({newDistance, nextNode});
@@ -167,7 +168,7 @@ void printShortestPath(unordered_map<char, vector<pair<char, int>>> &weightedGra
     }
 
     // Explore the neighbors
-    for (const auto &neighbor : weightedGraph.at(currentNode))
+    for (auto neighbor : weightedGraph.at(currentNode))
     {
       char nextNode = neighbor.first;
       int edgeWeight = neighbor.second;
@@ -179,7 +180,8 @@ void printShortestPath(unordered_map<char, vector<pair<char, int>>> &weightedGra
       if (newDistance < distances[nextNode])
       {
         // Remove the old entry if it exists
-        toProcess.erase({distances[nextNode], nextNode});
+        if (distances[nextNode] != 1e9)
+          toProcess.erase({distances[nextNode], nextNode});
 
         distances[nextNode] = newDistance;
         predecessors[nextNode] = currentNode; // Store the predecessor
@@ -202,6 +204,7 @@ int main()
       {'e', {'b', 'c'}},
       {'f', {}}};
 
+  // adjacency list
   unordered_map<char, vector<pair<char, int>>> weightedGraph{
       {'a', {{'b', 4}, {'c', 4}}},
       {'b', {{'a', 4}, {'c', 2}}},
@@ -210,9 +213,10 @@ int main()
       {'e', {{'c', 1}, {'f', 3}}},
       {'f', {{'c', 6}, {'d', 2}, {'e', 3}}}};
 
-  // cout << hasPath(graph, 'a', 'f') << endl;
+  // cout << hasPath(graph, 'a', 'e') << endl;
   // cout << shortestPath(weightedGraph, 'a', 'f') << endl;
   printShortestPath(weightedGraph, 'a', 'f');
+
   cout << endl
        << endl;
 }
