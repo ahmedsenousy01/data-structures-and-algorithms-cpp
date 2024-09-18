@@ -25,6 +25,7 @@ void bubbleSort(vector<int> &v) // O(n^2)
             if (v[j] > v[j + 1])
             {
                 swap(v[j], v[j + 1]);
+
                 swapped = true;
             }
         }
